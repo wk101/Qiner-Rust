@@ -1,0 +1,59 @@
+[package]
+# Package metadata
+name = "qiner"               # The name of the package
+version = "0.0.2"            # The version of the package
+edition = "2021"             # The Rust edition used
+authors = ["WK101"]          # The authors of the package
+
+[dependencies]
+# Async runtime for asynchronous programming
+tokio = { 
+    version = "1.28.1", 
+    default-features = false, 
+    features = [
+        "macros",           # Enables procedural macros (e.g., #[tokio::main])
+        "rt-multi-thread",  # Multi-threaded runtime
+        "time",             # Time utilities
+        "sync",             # Synchronization primitives
+        "net",              # Networking primitives
+        "io-util"           # I/O utilities
+    ] 
+}
+
+# Logging dependencies
+pretty_env_logger = "0.5.0"  # A logger configured via environment variables
+log = "0.4.17"               # The standard logging facade for Rust
+
+# Qubic dependencies (Keccak hash functions)
+keccak = "0.1.4"             # Keccak hash function
+k12 = "0.3.0"                # KangarooTwelve hash function
+
+# CPU information library
+num_cpus = "1.15.0"          # Get the number of available CPUs
+
+# Environment variable management
+dotenv = "0.15.0"            # Load environment variables from a `.env` file
+
+# Custom library dependency
+[dependencies.lib]
+path = "../lib"              # Path to the custom library
+default-features = false     # Disable default features
+features = [
+    "types",                 # Enable "types" feature
+    "version",               # Enable "version" feature
+    "env_names",             # Enable "env_names" feature
+    "random_seed",           # Enable "random_seed" feature
+    "solution_threshold"     # Enable "solution_threshold" feature
+]
+
+# Unix-specific dependencies
+[target.'cfg(unix)'.dependencies]
+openssl = { 
+    version = "0.10", 
+    features = ["vendored"]  # Use vendored OpenSSL libraries
+}
+
+# Release profile configuration
+[profile.release]
+opt-level = 3                # Optimization level (3 is maximum)
+lto = true                   # Enable Link Time Optimization
