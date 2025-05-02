@@ -1,3 +1,7 @@
+//! Qiner: High-performance cryptographic miner
+//!
+//! This binary initializes the mining environment, retrieves settings from `.env`,
+//! spawns mining workers, and manages asynchronous TCP communication to report results.
 use qiner::miner::Miner;
 use tokio;
 use lib::types::{Id, PublicKey64, STACK_SIZE};
