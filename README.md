@@ -67,10 +67,85 @@ SOLUTION_THRESHOLD=22
 ```
 
 
-## Notes on Computing Approaches
+# Notes on Computing Approaches
 
-While this guide covers deploying Qiner with a focus on using CPUs, there are other approaches that can be utilized for enhanced performance:
-- **CUDA GPUs**: Leveraging NVIDIA's CUDA framework for parallel computing on GPUs.
-- **FPGAs**: Using Field-Programmable Gate Arrays for highly efficient and customizable hardware acceleration.
-- **Heterogeneous Computing**: Combining different types of processors (e.g., CPUs, GPUs, and FPGAs) to optimize performance for specific tasks.
+While this guide focuses on running **Qiner** on CPUs, cryptographic performance can be significantly improved by leveraging hardware acceleration — particularly for hash-based workloads like those involving **SHA-2**, **SHA-3**, and **Keccak**.
 
+---
+
+## Crypto-Accelerated Computing Options
+
+### CUDA GPUs
+Ideal for parallel hash computations using SHA-2 or Keccak-f permutations. GPUs excel in workloads where millions of hashes can be executed in parallel, such as:
+- Mining
+- Brute-force nonce searches
+- Merkle tree updates
+
+---
+
+### FPGAs
+Offer reconfigurable logic blocks that can implement SHA-2 and SHA-3 hash pipelines directly in hardware.
+
+- **Keccak-f[1600] permutations** — the core of SHA-3 — benefit from pipelined round-function implementations.
+- Enables **high-throughput** and **low-latency** hashing.
+
+Key characteristics:
+- Up to 25 rounds per hash
+- Bitwise XOR, θ, ρ, π, χ, and ι steps mapped efficiently to LUTs and DSPs
+
+---
+
+### ASICs
+When a specific hashing algorithm (e.g., SHA-256 or Keccak) is locked in, ASICs offer:
+- The best hash rate per watt
+- Industrial-scale mining capabilities
+
+⚠️ Not adaptable for protocols that evolve over time.
+
+---
+
+### Heterogeneous Architectures
+In a cryptographic workload:
+
+- **CPU**: Handles control flow, job assignment, and communication
+- **GPU**: Runs thousands of hash kernels for general-purpose load
+- **FPGA or crypto coprocessor**: Accelerates hash pipelines like Keccak-f, SHA-256, or SHA3-512 for mission-critical verification
+
+---
+
+## 🔐 CECCAC for Cryptography
+
+**CECCAC** (*Custom Embedded Crypto-Compute Acceleration Cores*) are hardware logic blocks optimized for cryptographic primitives — particularly hashing, modular math, and permutation functions.
+
+In the context of **SHA-2/SHA-3** and **Keccak**, CECCAC provides:
+
+---
+
+### ✅ Hardware-accelerated Keccak-f[1600] permutation
+- All 25 rounds in a pipelined or unrolled structure
+- Supports SHA3-224, SHA3-256, SHA3-384, SHA3-512, and SHAKE variants
+- Removes instruction decoding and memory access bottlenecks
+
+---
+
+### ✅ Optimized SHA-2 Cores
+- Implements full SHA-256/SHA-512 logic with feedback paths and carry-save adders
+- Highly parallelizable for Merkle hashing or tree-based commitments
+
+---
+
+### ✅ Low-latency Sponge Construction
+- Ideal for Proof-of-Work systems using sponge-based hash functions (e.g., Qubic, Ethereum’s Keccak)
+- Deterministic performance across batches of input blocks
+
+---
+
+### Use Cases for Qiner
+- Fast **nonce search** using Keccak or SHA-3  
+- Accelerated **verification of solution thresholds**  
+- Real-time **block digest computation** on embedded or edge nodes  
+
+---
+
+### ⚡ TL;DR
+If Qiner uses **SHA-3 or Keccak** under the hood, deploying it on **CECCAC-enabled hardware** (or even a mid-range **FPGA** with a Keccak pipeline) can yield **10x–100x performance improvement per watt** over CPUs — while preserving flexibility not available with ASICs.
