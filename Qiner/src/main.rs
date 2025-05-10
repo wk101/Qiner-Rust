@@ -2,22 +2,34 @@
 //!
 //! This binary initializes the mining environment, retrieves settings from `.env`,
 //! spawns mining workers, and manages asynchronous TCP communication to report results.
-use qiner::miner::Miner;
-use tokio;
-use lib::types::{Id, PublicKey64, STACK_SIZE};
-use std::{env};
-use std::mem::{size_of, transmute};
-use std::sync::Arc;
-use tokio::runtime::Builder;
-use qiner::converters::get_public_key_64_from_id;
-use lib::env_names::{ENV_ID, ENV_NUMBER_OF_THREADS, ENV_SERVER_IP, ENV_SERVER_PORT};
-use qiner::network::Packet;
-use lib::types::network::protocols::BROADCAST_MESSAGE;
-use tokio::io::AsyncWriteExt;
-use tokio::net::TcpStream;
-use lib::random_seed::get_random_seed;
-use lib::solution_threshold::get_solution_threshold;
-use lib::version::get_version;
+// === Standard Library ===
+use std::env;                         // For reading environment variables
+use std::mem::{size_of, transmute};  // For low-level memory manipulation (used in mining/packet serialization)
+use std::sync::Arc;                  // For thread-safe shared references (used across threads)
+
+// === Tokio Async Runtime ===
+use tokio;                           // Base Tokio crate (often used for macros or attribute)
+use tokio::io::AsyncWriteExt;        // Async trait for writing to TCP streams
+use tokio::net::TcpStream;           // Async TCP socket for peer communication
+use tokio::runtime::Builder;         // Used to configure and build a custom Tokio runtime
+
+// === Qiner Crate (Project-Specific Core Logic) ===
+use qiner::converters::get_public_key_64_from_id;  // Converts node ID into a 64-byte public key
+use qiner::miner::Miner;                            // Core mining logic implementation
+use qiner::network::Packet;                         // Basic unit of network transmission
+
+// === Lib Crate (Shared Utilities and Constants) ===
+use lib::env_names::{                           // Constants for reading from env variables
+    ENV_ID,
+    ENV_NUMBER_OF_THREADS,
+    ENV_SERVER_IP,
+    ENV_SERVER_PORT,
+};
+use lib::random_seed::get_random_seed;          // Utility to generate a reproducible or random seed
+use lib::solution_threshold::get_solution_threshold;  // Returns current difficulty or threshold
+use lib::types::{Id, PublicKey64, STACK_SIZE};   // Core types used across mining and networking
+use lib::types::network::protocols::BROADCAST_MESSAGE; // Protocol constant for broadcast messaging
+use lib::version::get_version;                  // Returns client version for logging/handshake
 
 /// Retrieve the number of threads from the environment variable.
 ///
