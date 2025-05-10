@@ -50,7 +50,6 @@ pub struct NeuronData {
 }
 
 impl NeuronData {
-    /// Creates a new instance of NeuronData
     pub fn new() -> Self {
         NeuronData {
             neuron_links: [0; NUMBER_OF_NEURONS_64 * 2],
